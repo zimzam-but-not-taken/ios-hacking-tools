@@ -110,9 +110,12 @@ pick_header() {
 # Short description from the userland man page's NAME line, if one exists.
 print_desc() {
     local name="$1" line
+    # Note: || true and an `if` (not `&&`) matter here. Under `set -e`, a bare
+    # `[ -n "$line" ] && {...}` as the function's last command returns nonzero
+    # when there's no man page, which aborts the whole script before args/proto.
     line=$(man 2 "$name" 2>/dev/null | col -b \
-        | awk '/^NAME/{getline; gsub(/^[[:space:]]+/,""); print; exit}')
-    [ -n "$line" ] && { echo; echo "  desc:"; echo "    $line"; }
+        | awk '/^NAME/{getline; gsub(/^[[:space:]]+/,""); print; exit}') || true
+    if [ -n "$line" ]; then echo; echo "  desc:"; echo "    $line"; fi
 }
 
 print_entry() {
@@ -132,10 +135,13 @@ print_entry() {
             | sed -E 's/^[[:space:]]+//; s/[[:space:]]+/ /g; s/ ;/;/g; s/ +$//' \
             | sed 's/^/    /'
     fi
-    # Kernel prototype (return type).
+    # Kernel prototype. Match any return type, not just int: exit() returns
+    # void, and other platforms/SDKs may use user_ssize_t, void *, etc.
     local proto
-    proto=$(grep -E "^int (sys_)?${name}\(struct proc" "$sp" 2>/dev/null | head -1 || true)
-    [ -n "$proto" ] && { echo; echo "  proto:"; echo "    $proto"; }
+    proto=$(grep -E "^[A-Za-z_][A-Za-z0-9_]* \**(sys_)?${name}\(struct proc" "$sp" 2>/dev/null | head -1 || true)
+    # `if`, not `&&`: a bare `&&` here is print_entry's last command, and an
+    # empty proto would abort the loop (set -e) before later matches print.
+    if [ -n "$proto" ]; then echo; echo "  proto:"; echo "    $proto"; fi
 }
 
 lookup() {
