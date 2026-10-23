@@ -19,6 +19,7 @@ Tools are nothing crazy unique, **NO Craby Patty Secret Formula**. Just basics a
 - `host_scripts/link_bin.sh`: symlinks the scripts above into `~/.tools/bin` under the short names in parentheses.
 - `frida/ios-dump/dump.py` (`frida-dump`): Frida 17 port of `frida-ios-dump`; the actual decryptor behind `ios_decrypt`.
 - `frida/ios-dump/agent/dump.js` (`npm run build`): source of the injected agent, rewritten for the current Frida 17 API (upstream `frida-ios-dump` breaks on it); rebuild with `npm install && npm run build` in `frida/ios-dump/` after editing it or upgrading Frida.
+- `rev_eng/syscall.sh` (`syscall`): a "man page" for Darwin syscalls. Looks one up by name or number (`syscall.sh iphone write`, `syscall.sh macosx 4`, `syscall.sh mmap` defaults to macOS) against the SDK headers Xcode ships: name/number from `sys/syscall.h`, arg struct + kernel prototype from `sysproto.h`, and the `man 2` one-liner if there is one. `-l` lists platforms (iPhoneOS, MacOSX, AppleTVOS, WatchOS, XROS), `-r` rebuilds the header-path cache in `~/.cache/syscall` (first run is slow, rest are instant). Handy when you're staring at an `svc 0x80` in a disassembler.
 
 ## How I use these on the Host OS:
 1. Run `install_deps.sh` (brew, frida, etc.), then `link_bin.sh` (then go look at the new commands you goober `~/.tools/bin`).

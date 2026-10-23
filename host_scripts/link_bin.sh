@@ -15,6 +15,7 @@
 #   proxy2phone      -> host_scripts/proxy.sh             tunnel the HTTP proxy to the device
 #   frida_connect    -> host_scripts/frida_connect.sh     frida-ps -U
 #   frida-dump       -> frida/ios-dump/dump.py            the underlying dumper
+#   syscall          -> rev_eng/syscall.sh                Darwin syscall lookup by name/number
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -29,12 +30,13 @@ LINKS=(
     "proxy2phone:host_scripts/proxy.sh"
     "frida_connect:host_scripts/frida_connect.sh"
     "frida-dump:frida/ios-dump/dump.py"
+    "syscall:rev_eng/syscall.sh"
 )
 
 REMOVE=0
 case "${1:-}" in
     -r|--remove) REMOVE=1 ;;
-    -h|--help) sed -n '2,19p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,18p' "$0"; exit 0 ;;
     "") ;;
     *) echo "!! unknown option: $1"; exit 2 ;;
 esac
